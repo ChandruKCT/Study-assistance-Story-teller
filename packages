@@ -1,0 +1,9 @@
+sudo apt-get install python-pip
+sudo pip3 install pytesseract
+sudo apt-get install python3-tk
+sudo pip3 install Pillow
+sudo apt-get install python3-pil.imagetk
+ractsudo apt-get install espeak python3-espeak
+sudo pip3 install textract
+sudo apt-get install tesseract-ocr
+

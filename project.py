@@ -9,7 +9,12 @@ import time
 import subprocess
 from espeak import espeak
 import os
-#from textract import process
+#import slate
+from gtts import gTTS
+import PyPDF2
+from random import randint
+
+# from textract import process
 
 
 master = Tk()
@@ -44,11 +49,16 @@ def imageVoice():
 
 	file_path = filedialog.askopenfilename()
 	a = PIL.Image.open(file_path).convert("RGB")
+	sv = file_path
+	sv = sv.replace("/", "")
+	sv = sv.replace(".", "")
 	x = pytesseract.image_to_string(a)
 	x = x.replace("\n", " ")
-	print (x)
 	try:
 		espeak.synth(x)
+		name = "image" + sv + str(randint(0, 10000)) + ".mp3"
+		tts = gTTS(text=x, lang='en', slow=True)
+		tts.save(name)
 		#os.system("echo " + x + " | espeak -v female3 -s 120")
 	except:
 		espeak.synth(x)
@@ -61,8 +71,13 @@ def imageVoice():
 def textVoice():
 	global voo
 	def ok():
-		espeak.synth(e1.get())
-		#os.system("echo " + e1.get() + " | espeak -v female3")
+		x = e1.get()
+		espeak.synth(x)
+		tts = gTTS(text=x, lang='en', slow=False)
+		sv = str(randint(0, 10000))
+		sv = "text" + sv + ".mp3"
+		tts.save(sv)
+		# os.system("echo " + e1.get() + " | espeak -v female3")
 	if voo == 1:
 		voo = 2
 		e1 = Entry(master, width=25)
@@ -76,12 +91,29 @@ def textVoice():
 def pdfVoice():
 	global vee
 	def again():
-		espeak.synth(text)
+		for i in vee:
+			espeak.synth(i)
 	file_path = filedialog.askopenfilename()
-	text = process(file_path)
-	text = text.decode("utf-8")
-	print (text)
-	espeak.synth(text)
+	pdfFileObj = open(file_path, 'rb')
+	pdfReader = PyPDF2.PdfFileReader(pdfFileObj)
+	sv = str(file_path)
+	sv = sv.replace("/", "")
+	sv = sv.replace(".", "")
+	num = pdfReader.numPages
+	vee = []
+	for i in range(num):
+		pageObj = pdfReader.getPage(i)
+		text = pageObj.extractText()
+		vee.append(text)
+		
+		name = "PDF" + str(sv) + str(randint(0, 10000)) + ".mp3"
+		print (name, type(name))
+		espeak.synth(text)
+		tts = gTTS(text=text, lang='en', slow=True)
+		tts.save(name)
+
+	pdfFileObj.close()
+
 	if vee == 1:
 		vee = 2
 		replay = Button(master, text="replay pdf", command=again)
